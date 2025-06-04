@@ -7,13 +7,14 @@ namespace StorageSimulation
     {
         static Random rand = new Random();
 
-        static void Main(string[] args)
+        static List<Pallet> generateData(
+            int palletsToGenerate,
+            int boxesPerPallet
+            )
         {
-            const int PALLETS_TO_GENERATE = 10;
-            const int BOXES_PER_PALLET = 3;
-            Console.WriteLine("===DATA GENERATION===");
+            Console.WriteLine("===RANDOM DATA GENERATION===");
             List<Pallet> pallets = new List<Pallet>();
-            for (var i = 0; i < PALLETS_TO_GENERATE; i++)
+            for (var i = 0; i < palletsToGenerate; i++)
             {
                 Pallet newPallet = new Pallet(
                     randParam(),
@@ -21,7 +22,7 @@ namespace StorageSimulation
                     randParam()
                     );
                 Console.WriteLine("=BOXES=");
-                for (var j = 0; j < BOXES_PER_PALLET; j++)
+                for (var j = 0; j < boxesPerPallet; j++)
                 {
                     Box newBox =
                         Box.GetNewBoxWithExpirationDate(
@@ -38,7 +39,11 @@ namespace StorageSimulation
                 Console.WriteLine("=PALLET=");
                 Console.WriteLine(newPallet);
             }
+            return pallets;
+        }
 
+        static void firstTask(List<Pallet> pallets)
+        {
             Console.WriteLine("===FIRST TASK===");
             ImmutableSortedDictionary
                 <DateOnly, List<Pallet>> task1 = pallets
@@ -54,7 +59,10 @@ namespace StorageSimulation
                 Console.WriteLine(i.Key);
                 i.Value.ForEach(Console.WriteLine);
             }
+        }
 
+        static void secondTask(List<Pallet> pallets)
+        {
             Console.WriteLine("===SECOND TASK===");
             IOrderedEnumerable<Pallet> task2 = pallets
                 .Where(x => x.GetBoxes().Count > 0)
@@ -71,6 +79,29 @@ namespace StorageSimulation
         static int randParam(int max = 9)
         {
             return rand.Next(max) + 1;
+        }
+
+        static void Main(string[] args)
+        {
+            const int PALLETS_TO_GENERATE = 10;
+            const int BOXES_PER_PALLET = 3;
+            List<Pallet> pallets = new List<Pallet>();
+            string typeGen = Console.ReadLine() ?? "";
+            pallets = typeGen switch
+            {
+                "1" => generateData(
+                PALLETS_TO_GENERATE,
+                BOXES_PER_PALLET
+                ),
+                _ => generateData(
+                PALLETS_TO_GENERATE,
+                BOXES_PER_PALLET
+                )
+            };
+            
+            firstTask(pallets);
+
+            secondTask(pallets);
         }
     }
 }

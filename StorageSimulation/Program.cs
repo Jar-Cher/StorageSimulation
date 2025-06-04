@@ -42,6 +42,71 @@ namespace StorageSimulation
             return pallets;
         }
 
+        static List<Pallet> getDataFromConsole()
+        {
+            Console.WriteLine("Enter number of Pallets");
+            int palletsAmount = int.Parse(
+                Console.ReadLine() ?? "0"
+                );
+            List<Pallet> pallets = new List<Pallet>();
+            for (var i = 0; i < palletsAmount; i++)
+            {
+                Console.WriteLine(
+                    "Enter new pallet's width, length, height"
+                    );
+                int width =
+                    int.Parse(Console.ReadLine() ?? "0");
+                int length =
+                    int.Parse(Console.ReadLine() ?? "0");
+                int height =
+                    int.Parse(Console.ReadLine() ?? "0");
+                Pallet pallet = new Pallet(
+                    width,
+                    length,
+                    height
+                    );
+                Console.WriteLine(
+                    "Enter new pallet's number of boxes"
+                    );
+                int boxesAmount =
+                    int.Parse(Console.ReadLine() ?? "0");
+                for (var j = 0; j < palletsAmount; j++)
+                {
+                    Console.WriteLine(
+                        """
+                        Enter new box's width, length,
+                        height and weight
+                        """
+                        );
+                    int boxWidth =
+                        int.Parse(Console.ReadLine() ?? "0");
+                    int boxLength =
+                        int.Parse(Console.ReadLine() ?? "0");
+                    int boxHeight =
+                        int.Parse(Console.ReadLine() ?? "0");
+                    int boxWeight =
+                        int.Parse(Console.ReadLine() ?? "0");
+                    Console.WriteLine(
+                        "Enter new box's expiration date"
+                        );
+                    DateOnly expirationDate =
+                        DateOnly.Parse(
+                            Console.ReadLine() ?? "31.12.9999"
+                            );
+                    Box box = Box.GetNewBoxWithExpirationDate(
+                        boxWidth,
+                        boxLength,
+                        boxHeight,
+                        boxWeight,
+                        expirationDate
+                        );
+                    pallet.AddBox(box);
+                }
+                pallets.Add(pallet);
+            }
+            return pallets;
+        }
+
         static void firstTask(List<Pallet> pallets)
         {
             Console.WriteLine("===FIRST TASK===");
@@ -93,6 +158,7 @@ namespace StorageSimulation
                 PALLETS_TO_GENERATE,
                 BOXES_PER_PALLET
                 ),
+                "2" => getDataFromConsole(),
                 _ => generateData(
                 PALLETS_TO_GENERATE,
                 BOXES_PER_PALLET

@@ -93,7 +93,12 @@ namespace StorageSimulation
             double weight,
             DateOnly expirationDate)
         {
-            return new Box(width, length, depth, weight, expirationDate);
+            return new Box(
+                width,
+                length,
+                depth,
+                weight,
+                expirationDate);
         }
 
         public static Box GetNewBoxWithProductionDate(

@@ -1,4 +1,6 @@
-﻿using System.Collections.Immutable;
+﻿using Npgsql;
+using System.Collections.Immutable;
+using System.Xml.Linq;
 
 
 namespace StorageSimulation
@@ -70,7 +72,7 @@ namespace StorageSimulation
                     );
                 int boxesAmount =
                     int.Parse(Console.ReadLine() ?? "0");
-                for (var j = 0; j < palletsAmount; j++)
+                for (var j = 0; j < boxesAmount; j++)
                 {
                     Console.WriteLine(
                         """
@@ -102,7 +104,63 @@ namespace StorageSimulation
                         );
                     pallet.AddBox(box);
                 }
+                Console.WriteLine(pallet);
                 pallets.Add(pallet);
+            }
+            return pallets;
+        }
+
+        static List<Pallet> getDataFromDb()
+        {
+            List<Pallet> pallets = new List<Pallet>();
+            string connString =
+                $"""
+                Server={"localhost"}; User Id={"postgres"};
+                 Database={"MonopolyStorage"}; Port={"5432"};
+                 Password={"2348815"}; SSLMode=Prefer
+                """;
+            using (var conn = new NpgsqlConnection(connString))
+            {
+                conn.Open();
+                using (var command = new NpgsqlCommand(
+                        "SELECT * FROM pallet", conn)
+                    )
+                {
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Pallet pallet = new Pallet(
+                            reader.GetDouble(1),
+                            reader.GetDouble(2),
+                            reader.GetDouble(3)
+                            );
+                        Console.WriteLine(pallet);
+                        pallets.Add(pallet);
+                    }
+                    reader.Close();
+                }
+                using (var command = new NpgsqlCommand(
+                    "SELECT * FROM box", conn)
+                    )
+                {
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Box box = Box
+                            .GetNewBoxWithExpirationDate(
+                            reader.GetDouble(1),
+                            reader.GetDouble(2),
+                            reader.GetDouble(3),
+                            reader.GetDouble(4),
+                            DateOnly.FromDateTime(
+                                reader.GetDateTime(5))
+                            );
+                        Console.WriteLine(box);
+                        pallets[reader.GetInt16(6) - 1]
+                            .AddBox(box);
+                    }
+                    reader.Close();
+                }
             }
             return pallets;
         }
@@ -159,6 +217,7 @@ namespace StorageSimulation
                 BOXES_PER_PALLET
                 ),
                 "2" => getDataFromConsole(),
+                "3" => getDataFromDb(),
                 _ => generateData(
                 PALLETS_TO_GENERATE,
                 BOXES_PER_PALLET
